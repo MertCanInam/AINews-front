@@ -46,7 +46,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { createTicket, getMyTickets } from "@/api/ticketsService";
-import TicketCard from "@/components/TicketCard.vue";
+import TicketCard from "@/components/ticketCard.vue";
 
 const title = ref("");
 const description = ref("");

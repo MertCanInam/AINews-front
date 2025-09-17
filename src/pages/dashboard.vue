@@ -15,7 +15,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import http from "@/api/http";
-import PostCard from "@/components/PostCard.vue";
+import PostCard from "@/components/postCard.vue";
 
 const posts = ref([]);
 

@@ -18,7 +18,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import http from "@/api/http";
-import PostCard from "@/components/PostCard.vue";
+import PostCard from "@/components/postCard.vue";
 
 const posts = ref([]);
 const pagination = ref({ total: 0, currentPage: 1, totalPages: 1 });

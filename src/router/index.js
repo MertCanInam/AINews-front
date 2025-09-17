@@ -29,12 +29,12 @@ const routes = [
       // Posts
       {
         path: "posts",
-        component: () => import("@/pages/Posts.vue"),
+        component: () => import("@/pages/posts.vue"),
         meta: { requiresAuth: true },
       },
       {
         path: "posts/:id",
-        component: () => import("@/pages/PostDetail.vue"),
+        component: () => import("@/pages/postDetail.vue"),
         meta: { requiresAuth: true },
       },
       {
@@ -60,51 +60,51 @@ const routes = [
       // Confirm Email
       {
         path: "confirm-email",
-        component: () => import("@/pages/ConfirmEmail.vue"),
+        component: () => import("@/pages/confirmEmail.vue"),
       },
 
       // Admin Dashboard
       {
         path: "admin/dashboard",
-        component: () => import("@/pages/admin/AdminDashboard.vue"),
+        component: () => import("@/pages/admin/adminDashboard.vue"),
         meta: { requiresAuth: true, requiresAdmin: true },
       },
 
       // ✅ Admin Routes
       {
         path: "admin/users",
-        component: () => import("@/pages/admin/AdminUsers.vue"),
+        component: () => import("@/pages/admin/adminUsers.vue"),
         meta: { requiresAuth: true, requiresAdmin: true },
       },
       {
         path: "admin/sources",
-        component: () => import("@/pages/admin/AdminSources.vue"),
+        component: () => import("@/pages/admin/adminSources.vue"),
         meta: { requiresAuth: true, requiresAdmin: true },
       },
       {
         path: "admin/posts", // ✅ yeni eklenen route
-        component: () => import("@/pages/admin/AdminPosts.vue"),
+        component: () => import("@/pages/admin/adminPosts.vue"),
         meta: { requiresAuth: true, requiresAdmin: true },
       },
       // router/index.js
       {
         path: "admin/tickets",
-        component: () => import("@/pages/admin/AdminTickets.vue"),
+        component: () => import("@/pages/admin/adminTickets.vue"),
         meta: { requiresAuth: true, requiresAdmin: true },
       },
       {
         path: "admin/reports",
-        component: () => import("@/pages/admin/AdminReports.vue"),
+        component: () => import("@/pages/admin/adminReports.vue"),
         meta: { requiresAuth: true, requiresAdmin: true },
       },
       {
         path: "admin/saved-posts",
-        component: () => import("@/pages/admin/AdminSavedPosts.vue"),
+        component: () => import("@/pages/admin/adminSavedPosts.vue"),
         meta: { requiresAuth: true, requiresAdmin: true },
       },
       {
         path: "admin/profile", // ✅ yeni route
-        component: () => import("@/pages/admin/AdminProfile.vue"),
+        component: () => import("@/pages/admin/adminProfile.vue"),
         meta: { requiresAuth: true, requiresAdmin: true },
       },
     ],

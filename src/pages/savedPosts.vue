@@ -17,7 +17,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { getSavedPosts } from "@/api/savedPostsService";
-import PostCard from "@/components/PostCard.vue";
+import PostCard from "@/components/postCard.vue";
 
 const posts = ref([]);
 const loading = ref(false);

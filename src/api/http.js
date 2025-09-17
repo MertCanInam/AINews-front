@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const http = axios.create({
-  baseURL: "http://localhost:5000/api",
-  withCredentials: true, // 🍪 cookie otomatik gönderilsin
+  baseURL: import.meta.env.VITE_API_URL,
+  withCredentials: true,
 });
 
 export function setAuthHeader(token) {
@@ -29,16 +29,14 @@ http.interceptors.response.use(
   async (error) => {
     const originalConfig = error.config;
 
-    // Eğer refresh endpoint'i 401 verirse sonsuz döngüye girmemek için
     const isRefreshCall =
       originalConfig?.url?.includes("/auth/refresh-token") ||
-      originalConfig?.url === "http://localhost:5000/api/auth/refresh-token";
+      originalConfig?.url === `${import.meta.env.VITE_API_URL}/auth/refresh-token`;
 
     if (error.response?.status === 401 && !originalConfig._retry && !isRefreshCall) {
       originalConfig._retry = true;
 
       if (isRefreshing) {
-        // Devam eden refresh biter bitmez kuyruktakileri yeniden dene
         return new Promise((resolve, reject) => {
           queue.push({
             resolve: (token) => {
@@ -55,18 +53,14 @@ http.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // ⬇️ Artık body’de refreshToken gönderME — cookie otomatik gidiyor
         const { data } = await http.post("/auth/refresh-token");
-
         const newAccessToken = data.accessToken;
 
-        // sadece access token’ı tutuyoruz
         sessionStorage.setItem("accessToken", newAccessToken);
         setAuthHeader(newAccessToken);
 
         processQueue(newAccessToken, null);
 
-        // Orijinal isteği yeni access token ile tekrar dene
         originalConfig.headers["Authorization"] = `Bearer ${newAccessToken}`;
         return http(originalConfig);
       } catch (err) {

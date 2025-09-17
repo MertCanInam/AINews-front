@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global değişkenler */
+:root {
+ --bg-color: #f8f9fb; /* daha soft, daha modern */
+ --card-bg:   #ffffff;/* içerik alanı */
+  --text-color: #3c4858;     /* Softer, biraz daha gri */
+  --muted: #6c757d;           /* Alt metinler için modern soft gri */
+  --card-bg: #ffffff;
+  --border : #4facfe;
+}
+
+html, body, #app {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background 0.3s, color 0.3s;
+}

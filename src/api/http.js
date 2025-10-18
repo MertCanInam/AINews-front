@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const http = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: 'https://ai-news-backend.fly.dev/api', // <-- Değişiklik burada
   withCredentials: true,
 });
 
@@ -29,9 +29,8 @@ http.interceptors.response.use(
   async (error) => {
     const originalConfig = error.config;
 
-    const isRefreshCall =
-      originalConfig?.url?.includes("/auth/refresh-token") ||
-      originalConfig?.url === `${import.meta.env.VITE_API_URL}/auth/refresh-token`;
+    // Refresh token URL'sini doğrudan kontrol et, baseURL'e güvenme
+    const isRefreshCall = originalConfig?.url?.includes("/auth/refresh-token");
 
     if (error.response?.status === 401 && !originalConfig._retry && !isRefreshCall) {
       originalConfig._retry = true;
@@ -56,7 +55,7 @@ http.interceptors.response.use(
         const { data } = await http.post("/auth/refresh-token");
         const newAccessToken = data.accessToken;
 
-        sessionStorage.setItem("accessToken", newAccessToken);
+        sessionStorage.setItem("accessToken", newAccessToken); // sessionStorage yerine localStorage daha iyi olabilir
         setAuthHeader(newAccessToken);
 
         processQueue(newAccessToken, null);
@@ -65,7 +64,7 @@ http.interceptors.response.use(
         return http(originalConfig);
       } catch (err) {
         processQueue(null, err);
-        sessionStorage.clear();
+        localStorage.clear(); // sessionStorage yerine localStorage
         setAuthHeader(null);
         if (typeof window !== "undefined") window.location.href = "/login";
         return Promise.reject(err);

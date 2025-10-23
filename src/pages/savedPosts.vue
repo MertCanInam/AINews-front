@@ -1,23 +1,26 @@
 <template>
-  <section class="saved-posts">
-    <h1>❤️ Kaydedilen Gönderiler</h1>
+  <div class="saved-posts-container">
+    <h1 class="page-title">❤️ Kaydedilen Gönderiler</h1>
 
-    <div v-if="loading" class="loading">Yükleniyor...</div>
-    <div v-else-if="error" class="error">{{ error }}</div>
+    <!-- Durum Mesajları -->
+    <div v-if="loading" class="loading-message">Yükleniyor...</div>
+    <div v-else-if="error" class="error-message">{{ error }}</div>
 
+    <!-- Gönderi Listesi -->
     <div v-else>
-      <div v-if="posts.length" class="posts-list">
+      <div v-if="posts.length > 0" class="posts-grid">
+        <!-- PostCard bileşeni, daha önce stillendirildiği için bu gride uyum sağlayacaktır -->
         <PostCard v-for="p in posts" :key="p.id" :post="p" />
       </div>
-      <p v-else class="empty">Henüz hiç kaydettiğin gönderi yok.</p>
+      <p v-else class="empty-message">Henüz hiç kaydedilmiş gönderiniz bulunmuyor.</p>
     </div>
-  </section>
+  </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
 import { getSavedPosts } from "@/api/savedPostsService";
-import PostCard from "@/components/postCard.vue";
+import PostCard from "@/components/PostCard.vue";
 
 const posts = ref([]);
 const loading = ref(false);
@@ -28,10 +31,9 @@ const load = async () => {
   error.value = null;
   try {
     const { data } = await getSavedPosts();
-    // backend response: { success: true, data: [...] }
     posts.value = data?.data ?? [];
   } catch (e) {
-    error.value = e?.response?.data?.message || "Postlar yüklenemedi.";
+    error.value = e?.response?.data?.message || "Kaydedilen gönderiler yüklenemedi.";
   } finally {
     loading.value = false;
   }
@@ -40,63 +42,72 @@ const load = async () => {
 onMounted(load);
 </script>
 
-
 <style scoped>
-.saved-posts {
-  margin: 100px auto 0;
-  max-width: 960px;
-  padding: 24px;
-  display: grid;
-  gap: 24px;
+.saved-posts-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem; /* 32px */
 }
 
-.saved-posts h1 {
-  font-size: 1.8rem;
-  font-weight: bold;
-  color: var(--text-color);
+.page-title {
+  font-size: 1.875rem; /* 30px */
+  font-weight: 800;
   text-align: center;
-  margin-bottom: 12px;
+  color: #111827;
 }
 
-.posts-list {
+/* Post listesi için grid yapısı */
+.posts-grid {
   display: grid;
-  gap: 20px;
-  grid-template-columns: 1fr; /* 📱 mobil */
+  gap: 1.5rem; /* 24px */
+  grid-template-columns: 1fr; /* Mobil: Varsayılan tek sütun */
 }
 
-@media (min-width: 600px) {
-  .posts-list {
-    grid-template-columns: 1fr 1fr; /* tablet */
-  }
-}
-@media (min-width: 900px) {
-  .posts-list {
-    grid-template-columns: 1fr 1fr 1fr; /* desktop */
-  }
-}
-
-.loading {
+/* Yükleniyor Mesajı */
+.loading-message {
   text-align: center;
   font-weight: 600;
-  opacity: 0.8;
-  animation: pulse 1.5s infinite;
+  color: #3b82f6; /* Mavi */
+  padding: 2rem;
+  font-size: 1.125rem; /* 18px */
 }
 
-.error {
-  color: #ff4d4f;
+/* Hata Mesajı */
+.error-message {
   text-align: center;
   font-weight: 600;
+  color: #991b1b; /* Koyu Kırmızı */
+  padding: 1rem;
+  background-color: #fee2e2; /* Açık Kırmızı */
+  border-radius: 0.5rem; /* 8px */
+  border: 1px solid #fca5a5;
 }
 
-.empty {
-  opacity: 0.6;
+/* Boş Liste Mesajı */
+.empty-message {
+  color: #6b7280; /* Orta Gri */
+  text-align: center;
+  padding: 2rem;
+  background-color: #f3f4f6; /* Çok Açık Gri */
+  border-radius: 0.5rem; /* 8px */
   font-style: italic;
-  text-align: center;
 }
 
-@keyframes pulse {
-  0% { opacity: 0.4; }
-  50% { opacity: 1; }
-  100% { opacity: 0.4; }
+/* --- RESPONSIVE TASARIM --- */
+
+/* Tablet (768px ve üzeri) */
+@media (min-width: 768px) {
+  .posts-grid {
+    grid-template-columns: repeat(2, 1fr); /* İki sütunlu görünüm */
+  }
+}
+
+/* Masaüstü (1024px ve üzeri) */
+@media (min-width: 1024px) {
+  .posts-grid {
+    grid-template-columns: repeat(3, 1fr); /* Üç sütunlu görünüm */
+  }
 }
 </style>

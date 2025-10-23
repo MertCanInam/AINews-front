@@ -1,52 +1,59 @@
 <template>
-  <section class="tickets-page">
-    <h1>Öneriler</h1>
+  <div class="tickets-page-container">
+    <h1 class="page-title">Öneri ve Görüşleriniz</h1>
 
+    <!-- Yeni Öneri Oluşturma Formu -->
     <form class="ticket-form" @submit.prevent="submitTicket">
-      <label>
-        Başlık
+      <h2 class="form-title">Yeni Öneri Oluştur</h2>
+      
+      <div class="form-group">
+        <label for="ticket-title">Başlık</label>
         <input
+          id="ticket-title"
           v-model="title"
           type="text"
           required
           minlength="3"
-          maxlength="255"
-          placeholder="Kısa bir başlık"
+          placeholder="Kısa bir başlık girin"
         />
-      </label>
+      </div>
 
-      <label>
-        Açıklama
+      <div class="form-group">
+        <label for="ticket-description">Açıklama</label>
         <textarea
+          id="ticket-description"
           v-model="description"
-          rows="6"
+          rows="5"
           required
           minlength="10"
-          maxlength="5000"
-          placeholder="Detayları yaz..."
+          placeholder="Önerinizi detaylandırın..."
         ></textarea>
-      </label>
+      </div>
 
-      <button type="submit" :disabled="loading">
+      <button type="submit" :disabled="loading" class="submit-btn">
         {{ loading ? "Gönderiliyor..." : "Gönder" }}
       </button>
     </form>
+    
+    <!-- Başarı ve Hata Mesajları -->
+    <div v-if="success" class="alert success-alert">{{ success }}</div>
+    <div v-if="error" class="alert error-alert">{{ error }}</div>
 
-    <div v-if="success" class="alert success">{{ success }}</div>
-    <div v-if="error" class="alert error">{{ error }}</div>
-
-    <h2>Önerilerim</h2>
-    <div class="ticket-list">
-      <TicketCard v-for="t in myTickets" :key="t.id" :ticket="t" />
-      <p v-if="!myTickets.length" class="empty">Henüz ticket yok.</p>
+    <!-- Geçmiş Öneriler Listesi -->
+    <div class="tickets-list-section">
+      <h2 class="list-title">Geçmiş Önerilerim</h2>
+      <div v-if="myTickets.length > 0" class="tickets-grid">
+        <TicketCard v-for="t in myTickets" :key="t.id" :ticket="t" />
+      </div>
+      <p v-else class="empty-message">Henüz gönderilmiş bir öneriniz bulunmuyor.</p>
     </div>
-  </section>
+  </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
 import { createTicket, getMyTickets } from "@/api/ticketsService";
-import TicketCard from "@/components/ticketCard.vue";
+import TicketCard from "@/components/TicketCard.vue";
 
 const title = ref("");
 const description = ref("");
@@ -60,26 +67,28 @@ const loadTickets = async () => {
     const { data } = await getMyTickets();
     myTickets.value = Array.isArray(data) ? data : (data.items ?? []);
   } catch (e) {
-    error.value = "Ticketlar yüklenemedi.";
+    error.value = "Geçmiş öneriler yüklenirken bir hata oluştu.";
   }
 };
 
 const submitTicket = async () => {
   if (title.value.trim().length < 3 || description.value.trim().length < 10) return;
+  
   loading.value = true;
   error.value = null;
   success.value = null;
+  
   try {
     await createTicket({
       title: title.value.trim(),
       description: description.value.trim(),
     });
-    success.value = "Önerin alındı, teşekkürler!";
+    success.value = "Öneriniz başarıyla alındı, teşekkürler!";
     title.value = "";
     description.value = "";
     await loadTickets();
   } catch (e) {
-    error.value = e?.response?.data?.message || "Gönderim hatası.";
+    error.value = e?.response?.data?.message || "Öneri gönderilirken bir hata oluştu.";
   } finally {
     loading.value = false;
   }
@@ -89,117 +98,119 @@ onMounted(loadTickets);
 </script>
 
 <style scoped>
-/* her şey kutu modeline dahil olsun → taşma olmasın */
-*, *::before, *::after { box-sizing: border-box; }
-
-.tickets-page {
-  width: 100%;
-  max-width: 800px;          /* masaüstünde genişlik sınırı */
-  margin: 100px auto 24px;   /* navbar altı boşluk + alttan nefes */
-  padding: 0 16px;           /* kenarlardan güvenli boşluk */
-  display: grid;
-  gap: 24px;
-  overflow-x: hidden;        /* olası yatay kaymayı tamamen kapat */
-}
-
-h1 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: var(--text-color, #333);
-  text-align: center;
-  margin: 0;
-}
-
-h2 {
-  font-size: 1.4rem;
-  font-weight: 600;
-  margin: 8px 0 0;
-  color: var(--text-color, #333);
-}
-
-/* Form kartı */
-.ticket-form {
-  display: grid;
-  gap: 16px;
-  background: #fff;
-  padding: 20px;
-  border-radius: 14px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-  width: 100%;        /* parent’in dışına çıkma */
-  max-width: 100%;
-}
-
-.ticket-form label {
+.tickets-page-container {
+  max-width: 800px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 2rem; /* 32px ana elemanlar arası boşluk */
+}
+
+.page-title {
+  font-size: 1.875rem; /* 30px */
+  font-weight: 800;
+  text-align: center;
+  color: #111827;
+}
+
+/* Form Stilleri */
+.ticket-form {
+  background-color: white;
+  padding: 2rem; /* 32px */
+  border-radius: 1rem; /* 16px */
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; /* 24px */
+}
+.form-title {
+  font-size: 1.25rem; /* 20px */
+  font-weight: 700;
+  margin: 0;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* 8px */
+}
+.form-group label {
   font-weight: 600;
-  color: #333;
 }
-
-/* Modern input/textarea */
-.ticket-form input,
-.ticket-form textarea {
+.form-group input,
+.form-group textarea {
   width: 100%;
-  padding: 12px 14px;
-  border: 1px solid #d0d7de;
-  border-radius: 12px;
-  font-size: 14px;
-  background: #f9fafb;
-  transition: all 0.2s ease;
+  padding: 0.75rem 1rem; /* 12px 16px */
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem; /* 8px */
+  font-size: 1rem; /* 16px */
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-group input:focus,
+.form-group textarea:focus {
   outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+.form-group textarea {
+  resize: vertical;
+  min-height: 120px;
 }
 
-.ticket-form textarea {
-  resize: vertical;       /* sadece dikeyde boyutlandır */
-  min-height: 140px;
-}
-
-.ticket-form input:focus,
-.ticket-form textarea:focus {
-  border-color: #4facfe;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(79,172,254,0.2);
-}
-
-.ticket-form input::placeholder,
-.ticket-form textarea::placeholder {
-  color: #999;
-  font-size: 13px;
-}
-
-/* Buton */
-button {
-  padding: 12px 20px;
-  border-radius: 12px;
+/* Gönder Butonu */
+.submit-btn {
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
   border: none;
-  background: linear-gradient(135deg, #4facfe, #00f2fe);
-  color: #fff;
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+  color: white;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: opacity 0.3s;
 }
-button:hover:not(:disabled) { filter: brightness(0.92); }
-button:disabled { opacity: 0.6; cursor: not-allowed; }
+.submit-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
-/* Alertler */
+/* Uyarı Mesajları */
 .alert {
-  padding: 12px;
-  border-radius: 8px;
-  font-size: 14px;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
 }
-.alert.success { background: #f0fff4; border: 1px solid #b7ebc6; color: #2f855a; }
-.alert.error   { background: #fff5f5; border: 1px solid #feb2b2; color: #c53030; }
+.success-alert {
+  background-color: #dcfce7;
+  color: #166534;
+}
+.error-alert {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
 
-/* Ticket listesi */
-.ticket-list { display: grid; gap: 16px; }
-.empty { opacity: .7; text-align: center; font-style: italic; }
-
-/* 📱 Responsive */
-@media (max-width: 600px) {
-  .tickets-page { padding: 0 12px; gap: 20px; }
-  .ticket-form { padding: 16px; border-radius: 12px; }
-  h1 { font-size: 1.6rem; }
-  h2 { font-size: 1.25rem; }
+/* Ticket Listesi Alanı */
+.tickets-list-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.list-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+}
+.tickets-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+.empty-message {
+  color: #6b7280;
+  text-align: center;
+  padding: 1rem;
+  background-color: #f3f4f6;
+  border-radius: 0.5rem;
 }
 </style>

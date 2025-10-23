@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import http, { setAuthHeader } from "@/api/http";
 import { logoutApi } from "@/api/authService.js";
-import { jwtDecode } from "jwt-decode"; // 👈 değiştirildi
+import { jwtDecode } from "jwt-decode"; 
 
 function safeParseUser(raw) {
   try {
@@ -25,7 +25,7 @@ export const useAuthStore = defineStore("auth", {
       this.user = data.user;
       this.token = data.accessToken;
 
-      // token varsa decode et
+      
       if (data.accessToken) {
         const decoded = jwtDecode(data.accessToken);
         this.roleId = decoded?.role_id || null;

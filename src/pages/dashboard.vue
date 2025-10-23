@@ -15,14 +15,14 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import http from "@/api/http";
-import PostCard from "@/components/postCard.vue";
+import PostCard from "@/components/PostCard.vue";
 
 const posts = ref([]);
 
 async function fetchPosts() {
   try {
     const { data } = await http.get("/posts/by-date");
-    posts.value = data.data.posts; // ✅ API array döndürüyor
+    posts.value = data.data.posts; 
   } catch (err) {
     console.error("Haberler alınamadı:", err);
   }

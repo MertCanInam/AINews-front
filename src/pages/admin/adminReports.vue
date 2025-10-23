@@ -1,84 +1,89 @@
 <template>
-  <section class="admin-reports">
-    <h1>📊 Yönetim Raporları</h1>
+  <section class="admin-reports-page">
+    <h1 class="page-title">📈 Yönetim Raporları</h1>
 
-    <!-- 1) Günlük çekilen haber sayısı -->
-    <div class="card">
-      <div class="card-head">
-        <h2>📰 Günlük Haber Sayısı</h2>
-        <div class="right">
-          <label class="limit-label">Gün: </label>
-          <select v-model.number="dailyLimit" @change="renderDailyPosts">
-            <option :value="7">7</option>
-            <option :value="14">14</option>
-            <option :value="30">30</option>
-          </select>
+    <div class="reports-grid">
+      <!-- Tam Genişlik Kartlar -->
+      <div class="card full-width-card">
+        <div class="card-header">
+          <h2><i class="fa-solid fa-chart-simple icon"></i> Günlük Haber Sayısı</h2>
+          <div class="filter-group">
+            <label for="daily-limit">Gün:</label>
+            <select id="daily-limit" v-model.number="dailyLimit">
+              <option :value="7">7</option>
+              <option :value="14">14</option>
+              <option :value="30">30</option>
+            </select>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas ref="dailyPostsRef" v-show="dailyPosts.length > 0"></canvas>
+          <p v-if="!dailyPosts.length" class="empty-message">Veri bulunamadı.</p>
         </div>
       </div>
-      <div class="chart-wrap" v-if="dailyPosts.length">
-        <canvas ref="dailyPostsRef"></canvas>
-      </div>
-      <p v-else class="muted">Veri bulunamadı.</p>
-    </div>
 
-    <!-- 2) Kaynak başına haber dağılımı -->
-    <div class="card">
-      <h2>🌐 Kaynak Bazlı Haber Dağılımı</h2>
-      <div class="chart-wrap" v-if="sourcesDist.length">
-        <canvas ref="sourcesRef"></canvas>
-      </div>
-      <p v-else class="muted">Veri bulunamadı.</p>
-    </div>
-
-    <!-- 3) Aylık kullanıcı artışı -->
-    <div class="card">
-      <h2>👥 Aylık Kullanıcı Artışı</h2>
-      <div class="chart-wrap" v-if="monthlyGrowth.length">
-        <canvas ref="growthRef"></canvas>
-      </div>
-      <p v-else class="muted">Veri bulunamadı.</p>
-    </div>
-
-    <!-- 4) En çok ticket açan kullanıcılar -->
-    <div class="card">
-      <div class="card-head">
-        <h2>🎟️ En Çok Ticket Açanlar</h2>
-        <div class="right">
-          <label class="limit-label">Adet: </label>
-          <select v-model.number="topTicketLimit" @change="renderTopTickets">
-            <option :value="5">5</option>
-            <option :value="10">10</option>
-          </select>
+      <!-- İki Sütunlu Grid -->
+      <div class="half-width-grid">
+        <div class="card">
+          <div class="card-header">
+            <h2><i class="fa-solid fa-globe icon"></i> Kaynak Bazlı Dağılım</h2>
+          </div>
+          <div class="chart-container">
+            <canvas ref="sourcesRef" v-show="sourcesDist.length > 0"></canvas>
+            <p v-if="!sourcesDist.length" class="empty-message">Veri bulunamadı.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h2><i class="fa-solid fa-user-plus icon"></i> Aylık Kullanıcı Artışı</h2>
+          </div>
+          <div class="chart-container">
+            <canvas ref="growthRef" v-show="monthlyGrowth.length > 0"></canvas>
+            <p v-if="!monthlyGrowth.length" class="empty-message">Veri bulunamadı.</p>
+          </div>
         </div>
       </div>
-      <div class="chart-wrap" v-if="topTicketCreators.length">
-        <canvas ref="topTicketsRef"></canvas>
-      </div>
-      <p v-else class="muted">Veri bulunamadı.</p>
-    </div>
-
-    <!-- 5) En aktif kullanıcılar -->
-    <div class="card">
-      <div class="card-head">
-        <h2>🔥 En Aktif Kullanıcılar</h2>
-        <div class="right">
-          <label class="limit-label">Adet: </label>
-          <select v-model.number="activeUsersLimit" @change="renderActiveUsers">
-            <option :value="5">5</option>
-            <option :value="10">10</option>
-          </select>
+      
+      <!-- Tam Genişlik Kartlar -->
+      <div class="card full-width-card">
+        <div class="card-header">
+          <h2><i class="fa-solid fa-ticket icon"></i> En Çok Ticket Açanlar</h2>
+          <div class="filter-group">
+            <label for="ticket-limit">Adet:</label>
+            <select id="ticket-limit" v-model.number="topTicketLimit">
+              <option :value="5">5</option>
+              <option :value="10">10</option>
+            </select>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas ref="topTicketsRef" v-show="topTicketCreators.length > 0"></canvas>
+          <p v-if="!topTicketCreators.length" class="empty-message">Veri bulunamadı.</p>
         </div>
       </div>
-      <div class="chart-wrap" v-if="mostActiveUsers.length">
-        <canvas ref="activeUsersRef"></canvas>
+
+      <div class="card full-width-card">
+        <div class="card-header">
+          <h2><i class="fa-solid fa-fire icon"></i> En Aktif Kullanıcılar</h2>
+           <div class="filter-group">
+            <label for="active-limit">Adet:</label>
+            <select id="active-limit" v-model.number="activeUsersLimit">
+              <option :value="5">5</option>
+              <option :value="10">10</option>
+            </select>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas ref="activeUsersRef" v-show="mostActiveUsers.length > 0"></canvas>
+           <p v-if="!mostActiveUsers.length" class="empty-message">Veri bulunamadı.</p>
+        </div>
       </div>
-      <p v-else class="muted">Veri bulunamadı.</p>
     </div>
   </section>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, nextTick } from "vue";
+import { ref, watch, onMounted, onBeforeUnmount, nextTick } from "vue";
 import Chart from "chart.js/auto";
 import {
   getDailyPostTrends,
@@ -102,13 +107,18 @@ const monthlyGrowth = ref([]);
 const topTicketCreators = ref([]);
 const mostActiveUsers = ref([]);
 
-// Limits (default seçili)
+// Limits
 const dailyLimit = ref(7);
 const topTicketLimit = ref(5);
 const activeUsersLimit = ref(5);
 
+// Watchers: Filtre değişikliklerini izler ve ilgili fonksiyonu çağırır
+watch(dailyLimit, () => renderDailyPosts());
+watch(topTicketLimit, () => renderTopTickets());
+watch(activeUsersLimit, () => renderActiveUsers());
+
 // Charts
-let dailyChart, sourcesChart, growthChart, topTicketsChart, activeUsersChart;
+let charts = {};
 
 // Helpers
 const parseIntSafe = (v) => {
@@ -118,7 +128,6 @@ const parseIntSafe = (v) => {
 const fmtDate = (d) =>
   d
     ? new Date(d + "T00:00:00").toLocaleDateString("tr-TR", {
-        year: "numeric",
         month: "short",
         day: "2-digit",
       })
@@ -131,23 +140,24 @@ const fmtMonth = (d) =>
       })
     : "Bilinmiyor";
 
-// Common options
-function barOptions() {
+// Common chart options
+function getChartOptions(isBarHorizontal = false) {
   return {
     responsive: true,
     maintainAspectRatio: false,
+    indexAxis: isBarHorizontal ? 'y' : 'x',
     plugins: {
       legend: { display: false },
       tooltip: { mode: "index", intersect: false },
     },
     scales: {
       x: {
-        grid: { color: "rgba(0,0,0,0.06)" },
+        grid: { color: "rgba(0,0,0,0.05)" },
         ticks: { color: "#333", font: { size: 12 } },
       },
       y: {
         beginAtZero: true,
-        grid: { color: "rgba(0,0,0,0.06)" },
+        grid: { color: "rgba(0,0,0,0.05)" },
         ticks: { color: "#333", precision: 0, font: { size: 12 } },
       },
     },
@@ -156,269 +166,228 @@ function barOptions() {
 
 // ---- Renderers ----
 async function renderDailyPosts() {
-  const data = await getDailyPostTrends(dailyLimit.value);
-  dailyPosts.value = Array.isArray(data) ? data : [];
+  try {
+    const data = await getDailyPostTrends(dailyLimit.value);
+    dailyPosts.value = Array.isArray(data) ? data : [];
+    if (charts.daily) charts.daily.destroy();
+    if (!dailyPosts.value.length || !dailyPostsRef.value) return;
 
-  if (dailyChart) { dailyChart.destroy(); dailyChart = null; }
-  if (!dailyPosts.value.length) return;
-
-  await nextTick();
-  if (!dailyPostsRef.value) return;
-
-  const labels = dailyPosts.value.map((d) => fmtDate(d.date));
-  const counts = dailyPosts.value.map((d) => parseIntSafe(d.count));
-
-  dailyChart = new Chart(dailyPostsRef.value, {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [
-        {
+    await nextTick();
+    charts.daily = new Chart(dailyPostsRef.value, {
+      type: "bar",
+      data: {
+        labels: dailyPosts.value.map((d) => fmtDate(d.date)),
+        datasets: [{
           label: "Haber Sayısı",
-          data: counts,
+          data: dailyPosts.value.map((d) => parseIntSafe(d.count)),
           backgroundColor: "#4facfe",
-          borderColor: "#00f2fe",
-          borderWidth: 1,
-          borderRadius: 6,
-        },
-      ],
-    },
-    options: barOptions(),
-  });
+          borderRadius: 4,
+        }],
+      },
+      options: getChartOptions(),
+    });
+  } catch(e) { console.error("Günlük haber trendi alınamadı:", e); }
 }
 
 async function renderSourceDist() {
-  const data = await getPostDistributionBySource();
-  sourcesDist.value = (Array.isArray(data) ? data : []).map((s) => ({
-    name: s["Source.name"] || s.Source?.name || `Kaynak #${s.source_id}`,
-    count: parseIntSafe(s.count),
-  }));
-
-  if (sourcesChart) { sourcesChart.destroy(); sourcesChart = null; }
-  if (!sourcesDist.value.length) return;
-
-  await nextTick();
-  if (!sourcesRef.value) return;
-
-  sourcesChart = new Chart(sourcesRef.value, {
-    type: "bar",
-    data: {
-      labels: sourcesDist.value.map((s) => s.name),
-      datasets: [
-        {
+  try {
+    const data = await getPostDistributionBySource();
+    sourcesDist.value = (Array.isArray(data) ? data : []).map((s) => ({
+      name: s["Source.name"] || s.Source?.name || `Kaynak #${s.source_id}`,
+      count: parseIntSafe(s.count),
+    }));
+    if (charts.sources) charts.sources.destroy();
+    if (!sourcesDist.value.length || !sourcesRef.value) return;
+    
+    await nextTick();
+    charts.sources = new Chart(sourcesRef.value, {
+      type: "doughnut",
+      data: {
+        labels: sourcesDist.value.map((s) => s.name),
+        datasets: [{
           label: "Haber Sayısı",
           data: sourcesDist.value.map((s) => s.count),
-          backgroundColor: "#00f2fe",
-          borderColor: "#4facfe",
-          borderWidth: 1,
-          borderRadius: 6,
-        },
-      ],
-    },
-    options: barOptions(),
-  });
+          backgroundColor: ['#ef4444', '#f97316', '#22c55e', '#3b82f6', '#8b5cf6', '#f43f5e', '#64748b'],
+        }],
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' }}},
+    });
+  } catch(e) { console.error("Kaynak dağılımı alınamadı:", e); }
 }
 
 async function renderMonthlyGrowth() {
-  const data = await getMonthlyUserGrowth();
-  monthlyGrowth.value = Array.isArray(data) ? data : [];
+  try {
+    const data = await getMonthlyUserGrowth();
+    monthlyGrowth.value = Array.isArray(data) ? data : [];
+    if (charts.growth) charts.growth.destroy();
+    if (!monthlyGrowth.value.length || !growthRef.value) return;
 
-  if (growthChart) { growthChart.destroy(); growthChart = null; }
-  if (!monthlyGrowth.value.length) return;
-
-  await nextTick();
-  if (!growthRef.value) return;
-
-  const labels = monthlyGrowth.value.map((g) => (g.month ? fmtMonth(g.month) : "Bilinmiyor"));
-  const counts = monthlyGrowth.value.map((g) => parseIntSafe(g.count));
-
-  growthChart = new Chart(growthRef.value, {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [
-        {
+    await nextTick();
+    charts.growth = new Chart(growthRef.value, {
+      type: "line",
+      data: {
+        labels: monthlyGrowth.value.map((g) => (g.month ? fmtMonth(g.month) : "Bilinmiyor")),
+        datasets: [{
           label: "Yeni Kullanıcılar",
-          data: counts,
-          backgroundColor: "#8bc34a",
-          borderColor: "#4caf50",
-          borderWidth: 1,
-          borderRadius: 6,
-        },
-      ],
-    },
-    options: barOptions(),
-  });
+          data: monthlyGrowth.value.map((g) => parseIntSafe(g.count)),
+          borderColor: "#8bc34a",
+          backgroundColor: "rgba(139, 195, 74, 0.1)",
+          fill: true,
+          tension: 0.3,
+        }],
+      },
+      options: getChartOptions(),
+    });
+  } catch(e) { console.error("Aylık kullanıcı artışı alınamadı:", e); }
 }
 
 async function renderTopTickets() {
-  const data = await getTopTicketCreators(topTicketLimit.value);
-  topTicketCreators.value = Array.isArray(data) ? data : [];
+  try {
+    const data = await getTopTicketCreators(topTicketLimit.value);
+    topTicketCreators.value = Array.isArray(data) ? data : [];
+    if (charts.topTickets) charts.topTickets.destroy();
+    if (!topTicketCreators.value.length || !topTicketsRef.value) return;
 
-  if (topTicketsChart) { topTicketsChart.destroy(); topTicketsChart = null; }
-  if (!topTicketCreators.value.length) return;
-
-  await nextTick();
-  if (!topTicketsRef.value) return;
-
-  const labels = topTicketCreators.value.map((t) => {
-    const fn = t["User.first_name"] || "";
-    const ln = t["User.last_name"] || "";
-    return `${fn} ${ln}`.trim() || "Bilinmiyor";
-  });
-  const counts = topTicketCreators.value.map((t) => parseIntSafe(t.ticketCount));
-
-  topTicketsChart = new Chart(topTicketsRef.value, {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [
-        {
+    await nextTick();
+    charts.topTickets = new Chart(topTicketsRef.value, {
+      type: "bar",
+      data: {
+        labels: topTicketCreators.value.map((t) => `${t["User.first_name"] || ""} ${t["User.last_name"] || ""}`.trim()),
+        datasets: [{
           label: "Ticket Sayısı",
-          data: counts,
+          data: topTicketCreators.value.map((t) => parseIntSafe(t.ticketCount)),
           backgroundColor: "#ffcd56",
-          borderColor: "#ffb300",
-          borderWidth: 1,
-          borderRadius: 6,
-        },
-      ],
-    },
-    options: barOptions(),
-  });
+          borderRadius: 4,
+        }],
+      },
+      options: getChartOptions(),
+    });
+  } catch(e) { console.error("En çok ticket açanlar alınamadı:", e); }
 }
 
 async function renderActiveUsers() {
-  const data = await getMostActiveUsers(activeUsersLimit.value);
-  mostActiveUsers.value = Array.isArray(data) ? data : [];
+  try {
+    const data = await getMostActiveUsers(activeUsersLimit.value);
+    mostActiveUsers.value = Array.isArray(data) ? data : [];
+    if (charts.activeUsers) charts.activeUsers.destroy();
+    if (!mostActiveUsers.value.length || !activeUsersRef.value) return;
 
-  if (activeUsersChart) { activeUsersChart.destroy(); activeUsersChart = null; }
-  if (!mostActiveUsers.value.length) return;
-
-  await nextTick();
-  if (!activeUsersRef.value) return;
-
-  const labels = mostActiveUsers.value.map((u) =>
-    `${u.first_name || ""} ${u.last_name || ""}`.trim() || "Bilinmiyor"
-  );
-  const scores = mostActiveUsers.value.map((u) => parseIntSafe(u.activityScore));
-
-  activeUsersChart = new Chart(activeUsersRef.value, {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [
-        {
+    await nextTick();
+    charts.activeUsers = new Chart(activeUsersRef.value, {
+      type: "bar",
+      data: {
+        labels: mostActiveUsers.value.map((u) => `${u.first_name || ""} ${u.last_name || ""}`.trim()),
+        datasets: [{
           label: "Aktivite Skoru",
-          data: scores,
+          data: mostActiveUsers.value.map((u) => parseIntSafe(u.activityScore)),
           backgroundColor: "#ff5f5f",
-          borderColor: "#e84141",
-          borderWidth: 1,
-          borderRadius: 6,
-        },
-      ],
-    },
-    options: barOptions(),
-  });
+          borderRadius: 4,
+        }],
+      },
+      options: getChartOptions(),
+    });
+  } catch(e) { console.error("En aktif kullanıcılar alınamadı:", e); }
 }
 
 // Lifecycle
-onMounted(async () => {
-  await nextTick();
-  await renderDailyPosts();
-  await renderSourceDist();
-  await renderMonthlyGrowth();
-  await renderTopTickets();
-  await renderActiveUsers();
+onMounted(() => {
+  // onMounted'da sadece bir kerelik yükleme yapılır
+  renderDailyPosts();
+  renderSourceDist();
+  renderMonthlyGrowth();
+  renderTopTickets();
+  renderActiveUsers();
 });
 
 onBeforeUnmount(() => {
-  [dailyChart, sourcesChart, growthChart, topTicketsChart, activeUsersChart]
-    .forEach((c) => c && c.destroy());
+  Object.values(charts).forEach((c) => c && c.destroy());
 });
 </script>
 
 <style scoped>
-.admin-reports {
-  padding: 20px;
-  margin-top: 40px;
+.admin-reports-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.page-title {
+  font-size: 1.875rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+/* Raporlar Grid */
+.reports-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.half-width-grid {
   display: grid;
-  gap: 24px;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
 }
+
+/* Kart Stilleri */
 .card {
-  background: #fff;
-  border-radius: 14px;
-  padding: 18px 18px 6px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  background: white;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
 }
-.card-head {
+.card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  margin-bottom: 1.5rem;
 }
-.limit-label {
-  margin-right: 8px;
-  font-weight: 600;
+.card-header h2 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
-.card select {
-  padding: 6px 10px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: #f8f9fa;
+.icon {
+  color: #6b7280;
 }
-.chart-wrap {
+
+/* Filtreleme */
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.filter-group label {
+  font-weight: 500;
+  color: #4b5563;
+}
+.filter-group select {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid #d1d5db;
+}
+
+/* Grafik Alanı */
+.chart-container {
   position: relative;
   height: 320px;
+  display: flex; /* Eklendi */
+  align-items: center; /* Eklendi */
+  justify-content: center; /* Eklendi */
 }
-.muted {
-  color: #888;
-  font-size: 14px;
-  margin: 8px 0 12px;
-}
-
-/* 🔹 Tablet */
-@media (max-width: 992px) {
-  .admin-reports {
-    padding: 15px;
-    gap: 20px;
-  }
-  .card {
-    padding: 14px 14px 6px;
-  }
-  .chart-wrap {
-    height: 260px;
-  }
-  .card-head h2 {
-    font-size: 16px;
-  }
+.empty-message {
+  color: #6b7280;
+  font-style: italic;
 }
 
-/* 🔹 Telefon */
-@media (max-width: 576px) {
-  .admin-reports {
-    padding: 10px;
-    gap: 16px;
-  }
-  .card {
-    padding: 12px 12px 6px;
-  }
-  .chart-wrap {
-    height: 220px;
-  }
-  .card-head {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
-  .card-head h2 {
-    font-size: 15px;
-  }
-  .card select {
-    padding: 5px 8px;
-    font-size: 14px;
-  }
-  .muted {
-    font-size: 13px;
+/* Responsive */
+@media (min-width: 768px) {
+  .half-width-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 </style>
+

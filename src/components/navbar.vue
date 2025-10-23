@@ -1,14 +1,18 @@
 <template>
   <header class="navbar">
-    <h1 class="logo">
-      <img src="@/assets/logo3.png" alt="AI News Logo" class="logo-img" />
-    </h1>
-
+    <!-- Mobil için Hamburger Menü Butonu -->
+    <button @click="$emit('toggle-sidebar')" class="hamburger-btn">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    
+    <!-- Kullanıcı bilgisi ve çıkış butonu olan sağ taraf -->
     <div class="right-side">
       <span v-if="user" class="user-info">
         {{ user?.first_name }} {{ user?.last_name }}
       </span>
-      <button @click="logout" class="logout-btn">Çıkış</button>
+      <button @click="logout" class="logout-btn">
+        Çıkış
+      </button>
     </div>
   </header>
 </template>
@@ -17,6 +21,9 @@
 import { useAuthStore } from "@/store/auth";
 import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
+
+// Bu event, bir üst bileşene (MainLayout.vue) sidebar'ı aç/kapa sinyali gönderir
+defineEmits(['toggle-sidebar']);
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -29,118 +36,93 @@ const logout = async () => {
 </script>
 
 <style scoped>
+/* Ana Navbar Konteyneri */
 .navbar {
-  position: fixed;
+  /* Konumlandırma ve Z-Index */
+  position: sticky; /* Sayfa kaydırılsa bile üstte sabit kalır */
   top: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  width: 100%;
+  z-index: 20;
+
+  /* Görünüm */
+  background-color: white;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1); /* Hafif gölge */
+  padding: 1rem; /* 16px iç boşluk */
+  
+  /* Yerleşim */
   display: flex;
   align-items: center;
-  justify-content: space-between; /* 🔹 Masaüstünde logo solda, sağda buton */
-  padding: 0 16px;
-  z-index: 1000;
-  height: 70px;
+  justify-content: space-between; /* Hamburger ve sağ tarafı ayırır */
 }
 
-.logo {
-  display: flex;
-  align-items: center;
-  font-size: 18px;
-  font-weight: bold;
-  gap: 8px;
+/* Hamburger Menü Butonu */
+.hamburger-btn {
+  /* Görünüm */
+  background: none;
+  border: none;
+  color: #374151; /* Koyu gri */
+  font-size: 1.875rem; /* 30px */
+  cursor: pointer;
+  
+  /* Responsive: Sadece küçük ekranlarda görünür */
+  display: block;
 }
 
-.logo-img {
-  height: 100px; /* Masaüstü */
-  width: auto;
-}
-
+/* Sağ Taraf (Kullanıcı Bilgisi ve Buton) */
 .right-side {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 1rem; /* 16px elemanlar arası boşluk */
 }
 
+/* Kullanıcı Adı Soyadı */
 .user-info {
-  font-weight: 500;
-  color: #fff;
-  font-size: 15px;
+  color: #1f2937; /* Çok koyu gri */
+  font-weight: 600; /* Yarı-kalın */
+  
+  /* Responsive: Çok küçük ekranlarda gizlenir */
+  display: none;
 }
 
+/* Çıkış Butonu */
 .logout-btn {
-  background-color: white;
-  color: #4facfe;
-  padding: 8px 16px;
-  font-size: 14px;
-  font-weight: 600;
+  /* Görünüm */
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+  color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 0.5rem; /* 8px köşe yuvarlaklığı */
+  padding: 0.5rem 1rem; /* 8px dikey, 16px yatay boşluk */
+  font-weight: 700; /* Kalın */
   cursor: pointer;
-  transition: all 0.3s ease;
+  
+  /* Geçiş Efekti */
+  transition: opacity 0.2s;
 }
 
 .logout-btn:hover {
-  background-color: grey;
-  color: white;
+  opacity: 0.9;
 }
 
-/* 🔹 Tablet */
-@media (max-width: 992px) {
-  .logo-img {
-    height: 80px;
-  }
+/* --- RESPONSIVE TASARIM --- */
 
-  .navbar {
-    height: 60px;
-    padding: 0 12px;
-  }
-
+/* Tablet ve üzeri (640px ve daha geniş ekranlar) */
+@media (min-width: 640px) {
   .user-info {
-    font-size: 14px;
-  }
-
-  .logout-btn {
-    padding: 6px 12px;
-    font-size: 13px;
+    display: block; /* Kullanıcı adı görünür hale gelir */
   }
 }
 
-/* 🔹 Telefon */
-@media (max-width: 576px) {
+/* Masaüstü (1024px ve daha geniş ekranlar) */
+@media (min-width: 1024px) {
+  .hamburger-btn {
+    display: none; /* Hamburger menü gizlenir */
+  }
+
   .navbar {
-    justify-content: center; /* tüm navbar ortalanır */
-    height: 55px;
-    padding: 0 10px;
-    position: relative;
-  }
-
-  .logo {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%); /* 🔹 Logo tam ortaya gelir */
-    margin: 0;
-  }
-
-  .logo-img {
-    height: 50px; /* Mobil için küçültülmüş logo */
-  }
-
-  .right-side {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%); /* sağ üst köşeye */
-  }
-
-  .user-info {
-    display: none; /* Mobilde kullanıcı adı gizli */
-  }
-
-  .logout-btn {
-    padding: 5px 10px;
-    font-size: 12px;
-    border-radius: 8px;
+    /* Navbar'ın justify-content'i, hamburger butonu kaybolduğu için 
+       sağ tarafı otomatik olarak sağa itmek üzere ayarlanır. */
+    justify-content: flex-end;
   }
 }
 </style>
+

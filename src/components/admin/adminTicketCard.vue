@@ -1,18 +1,21 @@
 <template>
-  <div class="ticket-card">
-    <header>
-      <h3>{{ ticket.title }}</h3>
-      <span class="status" :class="ticket.status">{{ statusLabels[ticket.status] }}</span>
+  <div class="ticket-card" :class="`status-border-${ticket.status}`">
+    <header class="card-header">
+      <div class="header-info">
+        <h3>{{ ticket.title }}</h3>
+        <span class="status-badge" :class="`status-badge-${ticket.status}`">
+          {{ statusLabels[ticket.status] }}
+        </span>
+      </div>
+      <p class="user-info">
+        👤 {{ ticket.User?.first_name || "Bilinmiyor" }} {{ ticket.User?.last_name || "" }}
+      </p>
     </header>
 
     <p class="description">{{ ticket.description }}</p>
 
-    <footer>
-      <small>
-        👤 {{ ticket.User?.first_name || "Bilinmiyor" }}
-        {{ ticket.User?.last_name || "" }}
-        <span v-if="ticket.User?.email">| 📧 {{ ticket.User.email }}</span>
-        <br />
+    <footer class="card-footer">
+      <small class="date-info">
         🗓️ {{ formatDate(ticket.created_at) }}
       </small>
       <div class="actions">
@@ -31,6 +34,8 @@ defineProps({
     required: true,
   },
 });
+
+defineEmits(['update-status']);
 
 const statusLabels = {
   open: "Açık",
@@ -53,98 +58,87 @@ function formatDate(dateString) {
 <style scoped>
 .ticket-card {
   background: #fff;
-  padding: 16px;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  display: grid;
-  gap: 12px;
-}
-header {
+  padding: 1.25rem; /* 20px */
+  border-radius: 0.75rem; /* 12px */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 1rem; /* 16px */
+  border-left-width: 4px;
 }
-.status {
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: bold;
+/* Duruma göre sol kenarlık renkleri */
+.status-border-open { border-left-color: #3b82f6; }
+.status-border-read { border-left-color: #f59e0b; }
+.status-border-closed { border-left-color: #22c55e; }
+
+.card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.header-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+.header-info h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0;
+}
+.user-info {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+/* Durum Rozeti */
+.status-badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
   text-transform: uppercase;
 }
-.status.open {
-  background: #e3f2fd;
-  color: #1976d2;
+.status-badge-open { background-color: #e0f2fe; color: #0284c7; }
+.status-badge-read { background-color: #fef3c7; color: #d97706; }
+.status-badge-closed { background-color: #dcfce7; color: #16a34a; }
+
+.description {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.5;
 }
-.status.read {
-  background: #fff3cd;
-  color: #856404;
-}
-.status.closed {
-  background: #f8d7da;
-  color: #721c24;
-}
-footer {
+
+.card-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f3f4f6;
+}
+.date-info {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
 }
 .actions button {
-  margin-left: 8px;
-  padding: 6px 12px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  background: linear-gradient(135deg, #4facfe, #00f2fe);
-  color: #fff;
+  border: 1px solid #d1d5db;
+  background-color: #f9fafb;
+  color: #374151;
   font-weight: 600;
-  transition: 0.2s;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 .actions button:hover {
-  filter: brightness(0.9);
-}
-
-/* 🔹 Tablet */
-@media (max-width: 992px) {
-  .ticket-card {
-    padding: 12px;
-  }
-  header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
-  .status {
-    font-size: 11px;
-    padding: 3px 8px;
-  }
-  .actions button {
-    padding: 5px 10px;
-    font-size: 13px;
-  }
-}
-
-/* 🔹 Telefon */
-@media (max-width: 576px) {
-  .ticket-card {
-    padding: 10px;
-  }
-  footer {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  .actions button {
-    margin-left: 0;
-    flex: 1; /* butonlar eşit genişlikte olsun */
-    min-width: 80px;
-    font-size: 12px;
-    padding: 5px 8px;
-  }
+  background-color: #f3f4f6;
 }
 </style>

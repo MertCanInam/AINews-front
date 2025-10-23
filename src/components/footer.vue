@@ -1,37 +1,20 @@
 <template>
-  <footer class="footer">
+  <footer class="site-footer">
     <p>© 2025 AI News | Tüm Hakları Saklıdır.</p>
   </footer>
 </template>
 
 <script setup>
+// Bu basit bileşen için script gerekmez
 </script>
 
 <style scoped>
-.footer {
-  background: #2c3e50;
-  color: #ecf0f1;
+.site-footer {
+  background-color: transparent; /* Arkaplan saydam yapıldı */
+  color: #1e293b; /* Metin rengi koyu lacivert yapıldı */
   text-align: center;
-  padding: 12px;
-  font-size: 14px;
-  margin-top: auto; /* sayfa sonuna itmek için */
-}
-
-/* 🔹 Tablet */
-@media (max-width: 992px) {
-  .footer {
-    font-size: 13px;
-    padding: 10px;
-  }
-}
-
-/* 🔹 Telefon */
-@media (max-width: 576px) {
-  .footer {
-    font-size: 12px;
-    padding: 8px;
-    line-height: 1.4;
-  }
+  padding: 1rem; /* 16px */
+  flex-shrink: 0; /* İçerik kısayken bile küçülmesini engeller */
 }
 </style>
 

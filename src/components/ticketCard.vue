@@ -2,16 +2,12 @@
   <article class="ticket-card">
     <div class="header">
       <h3 class="title">{{ ticket.title }}</h3>
-      <span class="badge" :class="ticket.status">{{ ticket.status }}</span>
+      <span class="badge" :class="`status-${ticket.status}`">{{ statusLabels[ticket.status] }}</span>
     </div>
-
-    <p class="desc">
-      {{ ticket.description }}
-    </p>
-
+    <p class="description">{{ ticket.description }}</p>
     <p class="meta">
       Oluşturma: {{ formattedCreated }}
-      <span v-if="ticket.updated_at"> • Güncelleme: {{ formattedUpdated }}</span>
+      <span v-if="ticket.updated_at && ticket.updated_at !== ticket.created_at"> • Güncelleme: {{ formattedUpdated }}</span>
     </p>
   </article>
 </template>
@@ -23,101 +19,90 @@ const props = defineProps({
   ticket: { type: Object, required: true },
 });
 
-const formattedCreated = computed(() =>
-  props.ticket.created_at ? new Date(props.ticket.created_at).toLocaleString("tr-TR") : "-"
-);
-const formattedUpdated = computed(() =>
-  props.ticket.updated_at ? new Date(props.ticket.updated_at).toLocaleString("tr-TR") : "-"
-);
+// Durum etiketlerini daha kullanıcı dostu hale getirelim
+const statusLabels = {
+  open: "Açık",
+  read: "Okundu",
+  closed: "Kapalı",
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return "-";
+  return new Date(dateString).toLocaleString("tr-TR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+const formattedCreated = computed(() => formatDate(props.ticket.created_at));
+const formattedUpdated = computed(() => formatDate(props.ticket.updated_at));
 </script>
 
 <style scoped>
+/* Ana Kart Konteyneri */
 .ticket-card {
-  display: grid;
-  gap: 8px;
-  padding: 12px 16px;
-  background: var(--surface);
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 2px 6px var(--shadow);
-  transition: transform .2s, box-shadow .2s, border-color .2s;
-}
-.ticket-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 18px rgba(79,172,254,.2);
-  border-color:#4facfe;
+  background-color: white;
+  padding: 1rem 1.25rem; /* 16px dikey, 20px yatay */
+  border-radius: 0.75rem; /* 12px */
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* 8px elemanlar arası boşluk */
 }
 
+/* Kart Başlığı Alanı */
 .header {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem; /* 16px */
 }
+
+/* Başlık Metni */
 .title {
-  margin:0;
-  font-size:1rem;
-  font-weight:700;
-  color:var(--text);
+  margin: 0;
+  font-size: 1.125rem; /* 18px */
+  font-weight: 700;
+  color: #1f2937;
 }
 
+/* Durum Rozeti (Badge) */
 .badge {
-  padding:4px 8px;
-  border-radius:999px;
-  font-size:.75rem;
-  text-transform:capitalize;
-  border:1px solid #e5e7eb;
+  padding: 0.25rem 0.6rem; /* 4px dikey, 10px yatay */
+  border-radius: 9999px; /* Tam yuvarlak */
+  font-size: 0.75rem; /* 12px */
+  font-weight: 600;
+  text-transform: uppercase;
+  flex-shrink: 0; /* Küçülmesin */
 }
-.badge.open  { background:#e6f4ff; border-color:#b3d8ff; }  
-.badge.read  { background:#fff7e6; border-color:#ffe58f; }  
-.badge.closed{ background:#f6ffed; border-color:#b7eb8f; } 
+.status-open {
+  background-color: #e0f2fe; /* Açık mavi */
+  color: #0284c7;
+}
+.status-read {
+  background-color: #fef3c7; /* Açık sarı */
+  color: #d97706;
+}
+.status-closed {
+  background-color: #dcfce7; /* Açık yeşil */
+  color: #16a34a;
+}
 
-.desc {
-  margin:0;
-  color:var(--muted);
-  line-height:1.4;
-  white-space:pre-wrap;
+/* Açıklama Metni */
+.description {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.5;
 }
+
+/* Meta Bilgisi (Tarihler) */
 .meta {
-  margin:0;
-  font-size:.85rem;
-  color:var(--muted);
-}
-
-/* 🔹 Tablet */
-@media (max-width: 992px) {
-  .ticket-card {
-    padding: 10px 12px;
-    font-size: 0.95rem;
-  }
-  .title {
-    font-size: 0.95rem;
-  }
-  .badge {
-    font-size: 0.7rem;
-    padding: 3px 6px;
-  }
-}
-
-/* 🔹 Telefon */
-@media (max-width: 576px) {
-  .header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
-  .ticket-card {
-    padding: 8px 10px;
-    font-size: 0.9rem;
-  }
-  .title {
-    font-size: 0.9rem;
-  }
-  .desc {
-    font-size: 0.85rem;
-  }
-  .meta {
-    font-size: 0.8rem;
-  }
+  margin: 0;
+  font-size: 0.8rem; /* 13px */
+  color: #6b7280;
+  margin-top: 0.5rem; /* Üstten 8px boşluk */
 }
 </style>

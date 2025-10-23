@@ -70,7 +70,7 @@ const routes = [
         meta: { requiresAuth: true, requiresAdmin: true },
       },
 
-      // ✅ Admin Routes
+      //  Admin Routes
       {
         path: "admin/users",
         component: () => import("@/pages/admin/adminUsers.vue"),
@@ -82,7 +82,7 @@ const routes = [
         meta: { requiresAuth: true, requiresAdmin: true },
       },
       {
-        path: "admin/posts", // ✅ yeni eklenen route
+        path: "admin/posts", 
         component: () => import("@/pages/admin/adminPosts.vue"),
         meta: { requiresAuth: true, requiresAdmin: true },
       },
@@ -103,7 +103,7 @@ const routes = [
         meta: { requiresAuth: true, requiresAdmin: true },
       },
       {
-        path: "admin/profile", // ✅ yeni route
+        path: "admin/profile", 
         component: () => import("@/pages/admin/adminProfile.vue"),
         meta: { requiresAuth: true, requiresAdmin: true },
       },
@@ -119,7 +119,7 @@ const router = createRouter({
 router.beforeEach(async (to) => {
   const authStore = useAuthStore();
 
-  // ✅ token varsa global header set et
+  // token varsa global header set et
   if (authStore.token) {
     import("@/api/http").then(({ setAuthHeader }) =>
       setAuthHeader(authStore.token)
@@ -141,7 +141,7 @@ router.beforeEach(async (to) => {
     }
   }
 
-  // ✅ Admin kontrolü
+  //  Admin kontrolü
   if (to.meta.requiresAdmin && authStore.user?.role_id !== 1) {
     return "/dashboard"; // admin değilse ana sayfaya at
   }

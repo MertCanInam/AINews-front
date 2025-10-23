@@ -1,15 +1,6 @@
 <template>
   <article class="post-card" @click="goToDetail">
-    <div class="image-wrap">
-      <img :src="resolvedImage" :alt="post.title" />
-    </div>
-
-    <div class="content">
-      <h2 class="post-title">{{ post.title }}</h2>
-      <p class="post-summary">{{ post.summary }}</p>
-    </div>
-
-    <!-- ❤️ Kaydetme butonu -->
+    <!-- Kaydetme Butonu -->
     <button
       class="save-btn"
       :class="{ saved: isSaved }"
@@ -17,6 +8,19 @@
     >
       {{ isSaved ? "❤️" : "🤍" }}
     </button>
+
+    <div class="card-content">
+      <!-- Resim Alanı -->
+      <div class="image-wrap">
+        <img :src="resolvedImage" :alt="post.title" />
+      </div>
+
+      <!-- Metin İçeriği -->
+      <div class="text-content">
+        <h2 class="post-title">{{ post.title }}</h2>
+        <p class="post-summary">{{ post.summary }}</p>
+      </div>
+    </div>
   </article>
 </template>
 
@@ -45,12 +49,12 @@ const resolvedImage = computed(() => {
   return sourceImages[props.post.source_id] || globalFallback;
 });
 
-// 🔥 Detaya git
+// Detaya git
 const goToDetail = () => {
   router.push(`/posts/${props.post.id}`);
 };
 
-// --- Kaydetme butonu ---
+// Kaydetme butonu mantığı
 const isSaved = ref(false);
 
 const checkSaved = async () => {
@@ -80,122 +84,97 @@ onMounted(checkSaved);
 </script>
 
 <style scoped>
+/* Ana Kart Konteyneri */
 .post-card {
   position: relative;
-  display: grid;
-  grid-template-columns: 4fr 6fr;
-  align-items: center;
-  gap: 16px;
-  padding: 12px 16px;
-  background: var(--surface);
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 2px 6px var(--shadow);
+  background-color: white;
+  border: 2px solid transparent;
+  border-radius: 1rem; /* 16px */
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  overflow: hidden;
   cursor: pointer;
-  width: 90%;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: all 0.3s ease;
 }
-
+/* Kart üzerine gelince efekt */
 .post-card:hover {
   transform: translateY(-6px) scale(1.01);
   box-shadow: 0 12px 28px rgba(79, 172, 254, 0.25);
   border-color: #4facfe;
 }
 
+/* Kart İçeriği (Resim ve Metinleri Tutan Esnek Kutu) */
+.card-content {
+  padding: 1.25rem; /* 20px */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Resim Alanı */
 .image-wrap {
-  height: 90px;
+  height: 6rem; /* 96px */
+  margin-bottom: 1rem; /* 16px */
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--surface-alt);
-  overflow: hidden;
 }
 .image-wrap img {
-  max-width: 100%;
   max-height: 100%;
+  max-width: 100%;
   object-fit: contain;
 }
 
-.content {
+/* Metin İçeriği Alanı */
+.text-content {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  min-width: 0;
+  flex-grow: 1; /* Mevcut boşluğu doldurarak kartları aynı hizada tutar */
 }
 
+/* Başlık */
 .post-title {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.125rem; /* 18px */
   font-weight: 700;
-  color: var(--text);
+  color: #111827; /* Koyu gri */
   line-height: 1.25;
+  margin-bottom: 0.5rem; /* 8px */
+  /* Çoklu satırda metni kesme */
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Özet Metni */
 .post-summary {
   margin: 0;
-  font-size: 0.92rem;
-  color: var(--muted);
-  line-height: 1.35;
+  font-size: 0.875rem; /* 14px */
+  color: #4B5563; /* Orta gri */
+  line-height: 1.5;
+  /* Çoklu satırda metni kesme */
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-/* ❤️ Kaydet butonu */
+/* Kaydetme Butonu */
 .save-btn {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 0.75rem;  /* 12px */
+  right: 0.75rem; /* 12px */
   border: none;
   background: transparent;
-  font-size: 1.5rem;
+  font-size: 1.875rem; /* 30px */
   cursor: pointer;
   transition: transform 0.2s;
+  z-index: 10;
 }
 .save-btn:hover {
   transform: scale(1.2);
 }
 .save-btn.saved {
-  color: #ff4d4f;
-}
-
-/* 🔹 Responsive */
-@media (max-width: 992px) {
-  .post-card {
-    grid-template-columns: 1fr; /* Tablet ve küçük cihazlarda tek sütun */
-    text-align: center;
-  }
-
-  .image-wrap {
-    height: auto;
-    padding: 8px 0;
-  }
-
-  .content {
-    align-items: center;
-  }
-}
-
-@media (max-width: 576px) {
-  .post-card {
-    padding: 10px;
-    gap: 10px;
-  }
-
-  .post-title {
-    font-size: 0.95rem;
-  }
-
-  .post-summary {
-    font-size: 0.85rem;
-  }
-
-  .save-btn {
-    font-size: 1.3rem;
-  }
+  color: #ff4d4f; /* Kırmızı kalp */
 }
 </style>

@@ -1,41 +1,42 @@
 <template>
-  <section class="tickets-page">
-    <h1>🎟️ Ticket Yönetimi</h1>
+  <section class="admin-tickets-page">
+    <h1 class="page-title">🎟️ Ticket Yönetimi</h1>
 
-    <div v-if="tickets.length" class="tickets-grid">
-      <AdminTicketCard 
-        v-for="t in tickets" 
-        :key="t.id" 
-        :ticket="t" 
-        :class="['ticket-card', t.status]" 
-        @update-status="handleUpdateStatus" 
+    <div v-if="tickets.length > 0" class="tickets-grid">
+      <AdminTicketCard
+        v-for="t in tickets"
+        :key="t.id"
+        :ticket="t"
+        @update-status="handleUpdateStatus"
       />
     </div>
-    <p v-else class="empty">Henüz ticket yok.</p>
+    <p v-else class="empty-message">Gösterilecek ticket bulunamadı.</p>
 
-    <!-- ✅ Pagination -->
-    <div v-if="pagination.totalPages > 1" class="pagination">
-      <button 
-        class="btn-nav"
-        :disabled="pagination.currentPage === 1"
-        @click="changePage(pagination.currentPage - 1)">
-        ⬅️ Önceki
+    <!-- Sayfalama (Pagination) -->
+    <div class="pagination" v-if="pagination.totalPages > 1">
+      <button class="btn-nav" :disabled="pagination.currentPage === 1" @click="changePage(pagination.currentPage - 1)">
+        <i class="fa-solid fa-chevron-left"></i>
       </button>
-
       <button
         v-for="page in visiblePages"
         :key="page"
         class="btn-page"
         :class="{ active: page === pagination.currentPage }"
-        @click="changePage(page)">
+        @click="changePage(page)"
+      >
         {{ page }}
       </button>
-
-      <button 
-        class="btn-nav"
-        :disabled="pagination.currentPage === pagination.totalPages"
-        @click="changePage(pagination.currentPage + 1)">
-        Sonraki ➡️
+      <span v-if="pagination.totalPages > maxVisiblePages && !visiblePages.includes(pagination.totalPages)" class="dots">...</span>
+      <button
+        v-if="pagination.totalPages > maxVisiblePages && !visiblePages.includes(pagination.totalPages)"
+        class="btn-page"
+        :class="{ active: pagination.totalPages === pagination.currentPage }"
+        @click="changePage(pagination.totalPages)"
+      >
+        {{ pagination.totalPages }}
+      </button>
+      <button class="btn-nav" :disabled="pagination.currentPage === pagination.totalPages" @click="changePage(pagination.currentPage + 1)">
+        <i class="fa-solid fa-chevron-right"></i>
       </button>
     </div>
   </section>
@@ -44,11 +45,11 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import { getAllTickets, updateTicketStatus } from "@/api/admin/adminTicketService";
-import AdminTicketCard from "@/components/admin/adminTicketCard.vue";
+import AdminTicketCard from "@/components/admin/AdminTicketCard.vue";
 
 const tickets = ref([]);
 const pagination = ref({ total: 0, currentPage: 1, totalPages: 1 });
-const maxVisiblePages = 6;
+const maxVisiblePages = 5;
 
 async function fetchTickets(page = 1) {
   try {
@@ -73,22 +74,30 @@ function changePage(page) {
 const visiblePages = computed(() => {
   const total = pagination.value.totalPages;
   const current = pagination.value.currentPage;
+  const range = [];
+
   if (total <= maxVisiblePages) {
-    return Array.from({ length: total }, (_, i) => i + 1);
+    for (let i = 1; i <= total; i++) range.push(i);
+    return range;
   }
+
+  let start = Math.max(1, current - 2);
+  let end = Math.min(total, current + 2);
+
   if (current <= 3) {
-    return [1, 2, 3, 4, 5, 6];
+    end = maxVisiblePages;
+  } else if (current > total - 3) {
+    start = total - maxVisiblePages + 1;
   }
-  if (current >= total - 2) {
-    return Array.from({ length: 6 }, (_, i) => total - 5 + i);
-  }
-  return Array.from({ length: 6 }, (_, i) => current - 2 + i);
+  
+  for (let i = start; i <= end; i++) range.push(i);
+  return range;
 });
 
 async function handleUpdateStatus(id, status) {
   try {
     await updateTicketStatus(id, status);
-    fetchTickets(pagination.value.currentPage);
+    await fetchTickets(pagination.value.currentPage);
   } catch (err) {
     console.error("Ticket durumu güncellenemedi:", err);
   }
@@ -100,111 +109,65 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.tickets-page {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 24px;
-  display: grid;
-  gap: 24px;
-  margin-top: 80px;
+.admin-tickets-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
-
+.page-title {
+  font-size: 1.875rem;
+  font-weight: 800;
+  color: #111827;
+}
 .tickets-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 16px;
+  gap: 1.5rem; /* 24px */
 }
-
-.empty {
+.empty-message {
   text-align: center;
-  opacity: 0.7;
+  padding: 2rem;
+  color: #6b7280;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
 }
 
+/* Pagination */
 .pagination {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin-top: 24px;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
 }
-.btn-nav {
-  background: linear-gradient(135deg, #4facfe, #00f2fe);
-  color: white;
-  font-weight: 600;
-  border: none;
-  border-radius: 25px;
-  padding: 8px 16px;
+.btn-nav, .btn-page {
+  border: 1px solid #d1d5db;
+  background-color: white;
+  color: #374151;
+  border-radius: 0.375rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.2s;
 }
 .btn-nav:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
-.btn-page {
-  background: #f8f9fa;
-  border: 1px solid #ddd;
-  padding: 8px 14px;
-  border-radius: 50%;
-  cursor: pointer;
+.btn-nav:hover:not(:disabled), .btn-page:hover {
+  background-color: #f9fafb;
 }
 .btn-page.active {
-  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  background-color: #3b82f6;
   color: white;
-  font-weight: bold;
+  border-color: #3b82f6;
 }
-
-/* ✅ Ticket Card */
-.ticket-card {
-  background: #fff;
-  border-radius: 12px;
-  border: 1px solid #eee;
-  padding: 16px;
-  transition: all 0.25s ease;
-}
-
-/* 🔹 Open (Açık) */
-.ticket-card.open {
-  border: 1px solid #4facfe;
-}
-.ticket-card.open:hover {
-  transform: translateY(-3px) scale(1.01);
-  box-shadow: 0 6px 18px rgba(79, 172, 254, 0.35);
-}
-
-/* 🔹 Read (Okundu) */
-.ticket-card.read {
-  border: 1px solid #ffcd56;
-}
-.ticket-card.read:hover {
-  transform: translateY(-3px) scale(1.01);
-  box-shadow: 0 6px 18px rgba(255, 205, 86, 0.35);
-}
-
-/* 🔹 Closed (Kapalı) */
-.ticket-card.closed {
-  border: 1px solid #ff5f5f;
-}
-.ticket-card.closed:hover {
-  transform: translateY(-3px) scale(1.01);
-  box-shadow: 0 6px 18px rgba(255, 95, 95, 0.35);
-}
-
-/* 📱 Responsive */
-@media (max-width: 768px) {
-  .tickets-page {
-    padding: 16px;
-    margin-top: 40px;
-  }
-  .pagination {
-    gap: 6px;
-  }
-  .btn-nav,
-  .btn-page {
-    padding: 6px 10px;
-    font-size: 14px;
-  }
-  .btn-page {
-    border-radius: 8px; /* küçük ekranda yuvarlak yerine kutu gibi */
-  }
+.dots {
+  color: #6b7280;
 }
 </style>

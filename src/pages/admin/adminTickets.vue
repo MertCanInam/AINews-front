@@ -45,7 +45,7 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import { getAllTickets, updateTicketStatus } from "@/api/admin/adminTicketService";
-import AdminTicketCard from "@/components/admin/AdminTicketCard.vue";
+import AdminTicketCard from "@/components/admin/adminTicketCard.vue";
 
 const tickets = ref([]);
 const pagination = ref({ total: 0, currentPage: 1, totalPages: 1 });

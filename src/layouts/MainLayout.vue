@@ -24,9 +24,9 @@
 
 <script setup>
 import { ref } from 'vue';
-import Navbar from "@/components/Navbar.vue";
-import Sidebar from "@/components/Sidebar.vue";
-import Footer from "@/components/Footer.vue";
+import Navbar from "@/components/navbar.vue";
+import Sidebar from "@/components/sidebar.vue";
+import Footer from "@/components/footer.vue";
 
 // Sidebar'ın mobil görünümdeki açık/kapalı durumunu tutan state
 const sidebarOpen = ref(false);

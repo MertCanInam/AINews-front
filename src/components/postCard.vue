@@ -177,4 +177,15 @@ onMounted(checkSaved);
 .save-btn.saved {
   color: #ff4d4f; /* Kırmızı kalp */
 }
+@keyframes pop {
+  0% {
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
 </style>
